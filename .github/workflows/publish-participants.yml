@@ -1,0 +1,122 @@
+name: Publish participants
+
+# Pushes each changed participants/<name>/ as altinncr.azurecr.io/dis-training/<name>:main.
+# The participant's Flux Kustomization (from the syncroot) applies ./overlays/aks from it.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - participants/**
+      - '!participants/_template/**'
+      - '!participants/README.md'
+
+env:
+  ARTIFACT_PREFIX: dis-training
+  ARTIFACT_TAG: main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  changed:
+    name: Find changed participants
+    runs-on: self-hosted
+    outputs:
+      names: ${{ steps.changed.outputs.names }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history: a push can contain several commits.
+          fetch-depth: 0
+
+      - name: List changed participant folders
+        id: changed
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+
+          # Manual runs, and pushes without a usable "before" commit, publish everyone.
+          if [ "$EVENT_NAME" = workflow_dispatch ] || ! git cat-file -e "${BEFORE:-0000000}^{commit}" 2>/dev/null; then
+            candidates=$(find participants -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
+          else
+            candidates=$(git diff --name-only "$BEFORE" "$GITHUB_SHA" -- participants | cut -d/ -f2)
+          fi
+
+          # Skip the template, files directly under participants/ and folders deleted by
+          # scripts/cleanup.sh. Names are [a-z0-9-] (scripts/add-participant.sh), so the
+          # JSON array can be built without jq.
+          names=$(echo "$candidates" | sort -u | while read -r name; do
+            if [ -n "$name" ] && [ "$name" != _template ] && [ -d "participants/$name" ]; then
+              printf '"%s",' "$name"
+            fi
+          done)
+          names="[${names%,}]"
+
+          echo "Participants to publish: $names"
+          echo "names=$names" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish ${{ matrix.name }}
+    needs: changed
+    if: needs.changed.outputs.names != '[]'
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        name: ${{ fromJSON(needs.changed.outputs.names) }}
+    # One publish at a time per participant; a newer queued run replaces an older one.
+    concurrency:
+      group: publish-participant-${{ matrix.name }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup kustomize
+        uses: ./.github/actions/setup-kustomize
+
+      - name: Validate manifests
+        shell: bash
+        env:
+          NAME: ${{ matrix.name }}
+        run: |
+          set -euo pipefail
+          # Same commands participants run locally. The rendered AKS output is what Flux will apply.
+          kustomize build "participants/${NAME}/overlays/kind" >/dev/null
+          echo "::group::Rendered overlays/aks (what Flux applies)"
+          kustomize build "participants/${NAME}/overlays/aks"
+          echo "::endgroup::"
+
+      - name: Build and push participant artifact
+        uses: Altinn/altinn-platform/actions/flux/build-push-image@523f141da4f116fdd7331585396d83a5d7ade7ea # main
+        with:
+          image_name: ${{ env.ARTIFACT_PREFIX }}/${{ matrix.name }}
+          tag: ${{ env.ARTIFACT_TAG }}
+          workdir: ./participants/${{ matrix.name }}
+          azure_subscription_id: ${{ secrets.DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID }}
+          azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}
+
+      - name: Summary
+        shell: bash
+        env:
+          NAME: ${{ matrix.name }}
+        run: |
+          {
+            echo "### Published \`${NAME}\`"
+            echo "Artifact: \`altinncr.azurecr.io/${ARTIFACT_PREFIX}/${NAME}:${ARTIFACT_TAG}\`"
+            echo
+            echo "Flux picks it up within about a minute. Follow it with:"
+            echo '```sh'
+            echo "flux get kustomizations -n product-dis-training ${NAME}"
+            echo "kubectl get kustomization -n product-dis-training ${NAME} -w"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

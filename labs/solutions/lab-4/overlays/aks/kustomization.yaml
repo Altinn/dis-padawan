@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Shared AKS namespace: every object gets your name as prefix and owner label,
+# so nothing collides with (or selects) other participants' resources.
+namespace: product-dis-training
+namePrefix: __NAME__-
+labels:
+  - pairs:
+      owner: __NAME__
+    includeSelectors: true
+resources:
+  - applicationidentity.yaml
+  - vault.yaml
+  - ../../base
+  - externalsecret.yaml
+  - httproute.yaml
+  - hpa.yaml
+configurations:
+  - kustomizeconfig.yaml
+images:
+  # AKS pulls through ACR's pull-through cache for ghcr.io, not from ghcr.io directly.
+  - name: ghcr.io/stefanprodan/podinfo
+    newName: altinncr.azurecr.io/ghcr.io/stefanprodan/podinfo
+    newTag: 6.15.0
+# Overlay-specific config: merge into the base's generated ConfigMap.
+configMapGenerator:
+  - name: podinfo-config
+    behavior: merge
+    literals:
+      - PODINFO_UI_MESSAGE=Hello from AKS
+# The HPA owns the replica count on AKS. If the Deployment still set replicas,
+# Flux would reset it on every reconcile and fight the HPA.
+patches:
+  - target:
+      kind: Deployment
+      name: podinfo
+    patch: |-
+      - op: remove
+        path: /spec/replicas

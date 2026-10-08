@@ -1,0 +1,68 @@
+name: Publish syncroot
+
+# Pushes flux/syncroot as altinncr.azurecr.io/dis-training/syncroot:at22.
+# The platform applies ./at22 from it: one OCIRepository + Flux Kustomization per participant.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - flux/syncroot/**
+      - .github/workflows/publish-syncroot.yml
+
+env:
+  SYNCROOT_ARTIFACT_NAME: dis-training/syncroot
+  SYNCROOT_ENVIRONMENT: at22
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-syncroot
+  cancel-in-progress: false
+
+jobs:
+  publish-syncroot:
+    name: Publish syncroot artifact
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup kustomize
+        uses: ./.github/actions/setup-kustomize
+
+      - name: Validate syncroot
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          kustomize build "./flux/syncroot/${SYNCROOT_ENVIRONMENT}" >/dev/null
+
+          # Every syncroot entry must point at a participant folder; otherwise Flux
+          # would watch an artifact that never gets published.
+          for f in ./flux/syncroot/base/*.yaml; do
+            name=$(basename "$f" .yaml)
+            [ "$name" = kustomization ] && continue
+            if [ ! -d "./participants/${name}" ]; then
+              echo "::error file=${f}::No participants/${name}/ for syncroot entry ${name}"
+              exit 1
+            fi
+            if ! grep -qx "  - ${name}.yaml" ./flux/syncroot/base/kustomization.yaml; then
+              echo "::error file=${f}::${name}.yaml is not listed in flux/syncroot/base/kustomization.yaml (run scripts/add-participant.sh)"
+              exit 1
+            fi
+          done
+
+      - name: Build and push syncroot artifact
+        uses: Altinn/altinn-platform/actions/flux/build-push-image@523f141da4f116fdd7331585396d83a5d7ade7ea # main
+        with:
+          image_name: ${{ env.SYNCROOT_ARTIFACT_NAME }}
+          tag: ${{ env.SYNCROOT_ENVIRONMENT }}
+          workdir: ./flux/syncroot
+          azure_subscription_id: ${{ secrets.DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID }}
+          azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}

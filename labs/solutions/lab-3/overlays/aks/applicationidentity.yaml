@@ -1,0 +1,7 @@
+# dis-identity-operator: creates a user-assigned managed identity in Azure, a
+# federated credential, and a ServiceAccount with the same name as this object.
+apiVersion: application.dis.altinn.cloud/v1alpha1
+kind: ApplicationIdentity
+metadata:
+  name: podinfo
+spec: {}

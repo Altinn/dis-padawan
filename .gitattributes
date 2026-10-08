@@ -1,0 +1,4 @@
+# Normalise line endings so Windows checkouts don't break bash scripts or YAML.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.sh  text eol=lf
