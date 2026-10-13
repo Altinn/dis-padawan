@@ -35,7 +35,14 @@ for arg in "$@"; do
     --yes) EXECUTE=true ;;
     --keep-folder) KEEP_FOLDER=true ;;
     -*) echo "unknown flag $arg" >&2; exit 1 ;;
-    *) names+=("$arg") ;;
+    *)
+      # Names end up in rm -rf paths: reject anything that isn't a participant name.
+      if [[ ! "$arg" =~ $NAME_RE ]]; then
+        echo "invalid participant name: $arg" >&2
+        exit 1
+      fi
+      names+=("$arg")
+      ;;
   esac
 done
 [[ ${#names[@]} -gt 0 ]] || { sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
@@ -71,10 +78,17 @@ run() {
 
 for name in "${names[@]}"; do
   echo "## $name"
-  if [[ "$EXECUTE" == true ]] &&
-     kubectl --context "$AKS_CONTEXT" -n "$TRAINING_NAMESPACE" get kustomizations.kustomize.toolkit.fluxcd.io "$name" >/dev/null 2>&1; then
-    echo "  SKIP: Flux Kustomization $name still exists; finish phase 1 and wait for Flux to prune" >&2
-    continue
+  if [[ "$EXECUTE" == true ]]; then
+    # --ignore-not-found: "gone" is empty output with exit 0; any other failure
+    # (no network, expired login) must not count as "gone".
+    if ! existing="$(kubectl --context "$AKS_CONTEXT" -n "$TRAINING_NAMESPACE" get kustomizations.kustomize.toolkit.fluxcd.io "$name" --ignore-not-found -o name)"; then
+      echo "  SKIP: can't check whether Flux Kustomization $name still exists (see the kubectl error above)" >&2
+      continue
+    fi
+    if [[ -n "$existing" ]]; then
+      echo "  SKIP: Flux Kustomization $name still exists; finish phase 1 and wait for Flux to prune" >&2
+      continue
+    fi
   fi
   run az acr repository delete --name "$ACR_NAME" --repository "$ACR_REPOSITORY_PREFIX/$name" --yes
   # Anything left with the owner label means prune missed it.

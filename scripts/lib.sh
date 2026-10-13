@@ -1,5 +1,10 @@
 # Shared helpers for the trainer scripts. Source it; don't run it.
 
+# Participant names: a short DNS-1123 label. A name becomes a name prefix
+# ("<name>-podinfo-config"), a label value, a hostname label, an ACR repository
+# and a path under participants/, so it must never contain '/', '.' or '_'.
+NAME_RE='^[a-z]([a-z0-9-]{0,14}[a-z0-9])?$'
+
 # Rewrites flux/syncroot/base/kustomization.yaml so its resources list exactly
 # matches the participant files in flux/syncroot/base/ (sorted).
 sync_syncroot_resources() {

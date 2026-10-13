@@ -63,7 +63,7 @@ if [[ "${KIND_EXPERIMENTAL_PROVIDER:-}" != "podman" ]]; then
   fail "KIND_EXPERIMENTAL_PROVIDER is not set to podman in your shell (see setup/README.md)"
 fi
 
-section "Images (pre-pulled so Lab 1 starts fast)"
+section "Images (kind node pre-pulled; podinfo pull = registry check)"
 # Read the pinned node image from kind-config.yaml so there is one source of truth.
 KIND_NODE_IMAGE="$(awk '$1 == "image:" {print $2; exit}' "${SCRIPT_DIR}/kind-config.yaml")"
 for image in "$KIND_NODE_IMAGE" "$PODINFO_IMAGE"; do

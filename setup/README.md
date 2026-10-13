@@ -81,7 +81,7 @@ The command uses `--public-fqdn` because the cluster is private. Copy it as it i
 .\setup\verify.ps1                # Windows
 ```
 
-The verify script only checks that everything is ready; it doesn't create anything. You create the kind cluster yourself in Lab 1. It checks your tools, that Podman is running with at least 4 GB memory, and that `KIND_EXPERIMENTAL_PROVIDER=podman` is set. It pre-pulls the kind node image and the podinfo image, so Lab 1 starts fast and you know image pulls work. It also checks that the AKS API is reachable and that you have kubectl access to the training namespace. Use `--skip-aks` / `-SkipAks` to run only the local checks.
+The verify script only checks that everything is ready; it doesn't create anything. You create the kind cluster yourself in Lab 1. It checks your tools, that Podman is running with at least 4 GB memory, and that `KIND_EXPERIMENTAL_PROVIDER=podman` is set. It pulls the kind node image into Podman, so `kind create cluster` in Lab 1 starts fast. It also pulls the podinfo image, but only to check that you can reach the registry: the kind node has its own image store and pulls podinfo again in Lab 1. It also checks that the AKS API is reachable and that you have kubectl access to the training namespace. Use `--skip-aks` / `-SkipAks` to run only the local checks.
 
 **If any check fails, send the full output to the trainer before the training day.**
 

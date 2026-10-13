@@ -143,7 +143,7 @@ Gateway: `traefik-gateway` (namespace `traefik`), no `sectionName`; confirm its 
 ## Known gotchas to handle
 
 - **Container runtime is Podman only** (no Docker Desktop, no Rancher Desktop; don't mention alternatives). kind needs `KIND_EXPERIMENTAL_PROVIDER=podman` and a Podman machine with ≥ 4 GB (rootless is fine). Windows needs WSL2.
-- **Setup check only verifies readiness, it creates nothing**: tools, Podman running + ≥ 4 GB, `KIND_EXPERIMENTAL_PROVIDER=podman`, pre-pulls the kind node and podinfo images, verifies AKS API reachability (and that credentials use `--public-fqdn`), kubectl to AKS and `az keyvault` access.
+- **Setup check only verifies readiness, it creates nothing**: tools, Podman running + ≥ 4 GB, `KIND_EXPERIMENTAL_PROVIDER=podman`, pre-pulls the kind node image (podinfo pull is only a registry check; kind's containerd pulls it again), verifies AKS API reachability (and that credentials use `--public-fqdn`), kubectl to AKS and `az keyvault` access.
 - **Concurrent pushes**: several people pushing to the same branch → rejected pushes. Teach `git pull --rebase`. Participants only touch `participants/<name>/` (consider CODEOWNERS or a check in the workflow).
 - **Workload identity**: federated credentials bind to the exact SA name/namespace. The SA comes from the ApplicationIdentity (same name); participants must not create or rename it by hand.
 - **Key Vault creation takes minutes** the first time: Flux Kustomization `timeout: 5m`, ExternalSecret retries until the operator's SecretStore exists.

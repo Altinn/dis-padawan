@@ -1,5 +1,6 @@
 # Trainer owns everything outside participants/<name>/.
 # Note: CODEOWNERS only takes effect through PR review rules. Participants push
-# straight to main, so the real guard is a path check in the deploy workflow
-# (see .github/workflows/README.md). Replace <trainer-github-handle>.
+# straight to main, and the workflows don't enforce per-participant ownership
+# (see .github/workflows/README.md), so the training relies on discipline.
+# Replace <trainer-github-handle>.
 *                       @<trainer-github-handle>

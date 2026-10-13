@@ -54,11 +54,12 @@ try {
         Copy-Item "$tmp\kubectl.exe" "$binDir\kubectl.exe" -Force
     }
 
-    # kubelogin: no published .sha256 for the Windows zip; relies on HTTPS
     Install-IfMissing kubelogin {
         Info "kubelogin $($config.KUBELOGIN_VERSION)"
         $url = "https://github.com/Azure/kubelogin/releases/download/$($config.KUBELOGIN_VERSION)/kubelogin-win-amd64.zip"
         Get-File $url "$tmp\kubelogin.zip"
+        # The .sha256 file may be "<hash>  <filename>": compare the hash only.
+        Assert-Sha256 "$tmp\kubelogin.zip" ((Get-Text "$url.sha256").Trim() -split '\s+')[0]
         Expand-Archive "$tmp\kubelogin.zip" "$tmp\kubelogin" -Force
         Copy-Item "$tmp\kubelogin\bin\windows_amd64\kubelogin.exe" "$binDir\kubelogin.exe" -Force
     }

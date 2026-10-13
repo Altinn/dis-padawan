@@ -57,7 +57,7 @@ if ($env:KIND_EXPERIMENTAL_PROVIDER -ne 'podman') {
     Fail "KIND_EXPERIMENTAL_PROVIDER is not set to podman (see setup\README.md)"
 }
 
-Section "Images (pre-pulled so Lab 1 starts fast)"
+Section "Images (kind node pre-pulled; podinfo pull = registry check)"
 # Read the pinned node image from kind-config.yaml so there is one source of truth.
 $kindNodeImage = (Select-String -Path (Join-Path $PSScriptRoot 'kind-config.yaml') -Pattern '^\s*image:\s*(\S+)' |
     Select-Object -First 1).Matches[0].Groups[1].Value

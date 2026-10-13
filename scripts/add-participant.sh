@@ -27,10 +27,6 @@ else
 fi
 [[ ${#names[@]} -gt 0 ]] || usage
 
-# Short DNS-1123 label: it becomes a name prefix ("<name>-podinfo-config"), a label
-# value, a hostname label, and an ACR repository.
-NAME_RE='^[a-z]([a-z0-9-]{0,14}[a-z0-9])?$'
-
 # Copies a file or directory and replaces the name token in every file.
 render() {
   cp -R "$1" "$2"
@@ -56,16 +52,23 @@ for name in "${names[@]}"; do
   render "$TEMPLATE" "$dest" "$name"
   render "$SYNCROOT_TEMPLATE" "$syncroot_file" "$name"
 
+  error=""
   if grep -rq "$TOKEN" "$dest" "$syncroot_file"; then
-    echo "FAIL $name: unreplaced $TOKEN left" >&2
+    error="unreplaced $TOKEN left"
+  else
+    for overlay in kind aks; do
+      if ! kubectl kustomize "$dest/overlays/$overlay" >/dev/null; then
+        error="overlays/$overlay does not render"
+        break
+      fi
+    done
+  fi
+  if [[ -n "$error" ]]; then
+    # Remove the partial output so a re-run doesn't skip this name as "already exists".
+    rm -rf "$dest" "$syncroot_file"
+    echo "FAIL $name: $error (nothing created)" >&2
     status=1; continue
   fi
-  for overlay in kind aks; do
-    if ! kubectl kustomize "$dest/overlays/$overlay" >/dev/null; then
-      echo "FAIL $name: overlays/$overlay does not render" >&2
-      status=1
-    fi
-  done
   echo "OK   $name -> participants/$name/, flux/syncroot/base/$name.yaml"
 done
 
