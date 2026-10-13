@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+labels:
+  - pairs:
+      app.kubernetes.io/name: podinfo
+    includeSelectors: true
+resources:
+  - deployment.yaml
+  - service.yaml
+# Generated ConfigMap: the name gets a content hash, so changing a value
+# changes the name and rolls out the Deployment automatically.
+configMapGenerator:
+  - name: podinfo-config
+    literals:
+      - PODINFO_UI_MESSAGE=Hello from Lab 2
+      - PODINFO_UI_COLOR=#34577c

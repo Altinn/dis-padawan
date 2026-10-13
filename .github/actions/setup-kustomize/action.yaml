@@ -1,0 +1,39 @@
+name: Setup kustomize
+description: Installs the official kustomize binary (no Docker, no sudo); self-hosted runners ship neither kustomize nor kubectl.
+
+inputs:
+  version:
+    description: kustomize release tag
+    required: false
+    default: v5.8.1
+
+runs:
+  using: composite
+  steps:
+    - name: Install kustomize
+      shell: bash
+      env:
+        KUSTOMIZE_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+
+        case "$(uname -m)" in
+          x86_64) arch=amd64 ;;
+          aarch64 | arm64) arch=arm64 ;;
+          *) echo "::error::Unsupported architecture: $(uname -m)"; exit 1 ;;
+        esac
+
+        dest="${RUNNER_TEMP:-/tmp}/kustomize-bin"
+        mkdir -p "$dest"
+        tarball="kustomize_${KUSTOMIZE_VERSION}_linux_${arch}.tar.gz"
+        base="https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}"
+
+        curl -fsSL "$base/$tarball" -o "$dest/$tarball"
+        expected="$(curl -fsSL "$base/checksums.txt" | awk -v f="$tarball" '$2 == f {print $1}')"
+        echo "${expected}  $dest/$tarball" | sha256sum -c -
+
+        tar -xzf "$dest/$tarball" -C "$dest" kustomize
+        rm -f "$dest/$tarball"
+        chmod +x "$dest/kustomize"
+        echo "$dest" >> "$GITHUB_PATH"
+        "$dest/kustomize" version

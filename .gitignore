@@ -1,0 +1,17 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local tooling downloaded by setup scripts
+.bin/
+
+# Local kubeconfigs and secrets — never commit
+*.kubeconfig
+kubeconfig*
+.env
+.env.*
+
+# Claude Code local settings
+.claude/settings.local.json
