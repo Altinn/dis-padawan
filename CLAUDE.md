@@ -173,4 +173,4 @@ git + GitHub access to this repo, kubectl, kind, Podman (machine with ≥ 4 GB),
 - Entra training group not created yet → `<training-group-object-id>` in `vault.yaml` (template + solutions)
 - Confirm `traefik-gateway` admits HTTPRoutes from `product-dis-padawan` and serves `*.at22.dis-core.altinn.cloud`
 - OTel: collector endpoint, how it scrapes Prometheus metrics, trace backend in Grafana
-- Repo moves to the Altinn org later; then the `DIS_SYNCROOT_AZURE_*` secrets and self-hosted runners apply as in dialogporten-manifests. Fill `<trainer-github-handle>` in CODEOWNERS
+- Repo moves to the Altinn org later; then the `DIS_SYNCROOT_AZURE_*` secrets and self-hosted runners apply as in dialogporten-manifests. **Push triggers in both publish workflows are commented out until then**; re-enable them before the training (labs depend on them). Fill `<trainer-github-handle>` in CODEOWNERS

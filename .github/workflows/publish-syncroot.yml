@@ -5,12 +5,14 @@ name: Publish syncroot
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - flux/syncroot/**
-      - .github/workflows/publish-syncroot.yml
+  # Push trigger disabled until the repo has moved to the Altinn org (secrets, runners,
+  # ACR access). Uncomment to enable; manual runs work meanwhile.
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - flux/syncroot/**
+  #     - .github/workflows/publish-syncroot.yml
 
 env:
   SYNCROOT_ARTIFACT_NAME: dis-padawan/syncroot
