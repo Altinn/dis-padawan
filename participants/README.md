@@ -15,7 +15,7 @@ participants/<name>/
 | Who applies it | you: `kubectl apply -k participants/<name>/overlays/kind` | Flux, after `git push` → workflow → ACR |
 | Names | `podinfo`, `podinfo-config`, … | `<name>-podinfo`, `<name>-podinfo-config`, … |
 | `demo-secret` | `secretGenerator` with a literal value | `ExternalSecret` reading secret `demo-api-key` from your own Key Vault |
-| Reach the app | `kubectl port-forward svc/podinfo 9898:9898 -n product-dis-training` | `https://dis-training-<name>.at22.dis-core.altinn.cloud` |
+| Reach the app | `kubectl port-forward svc/podinfo 9898:9898 -n product-dis-padawan` | `https://dis-padawan-<name>.at22.dis-core.altinn.cloud` |
 
 Preview what Flux will apply: `kubectl kustomize participants/<name>/overlays/aks`
 

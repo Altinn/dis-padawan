@@ -1,13 +1,13 @@
 # Lab 3 — Deploy to AKS with git push and Flux
 
-**Time:** 75 min · **Where:** AKS (`product-dis-training`), via git
+**Time:** 75 min · **Where:** AKS (`product-dis-padawan`), via git
 
 ## Goal
 
 Deploy your app to AKS without running `kubectl apply`: you push, a workflow publishes your folder to ACR, and Flux applies it. Your app gets its secret from your own Key Vault and is reachable on your own hostname.
 
 ```
-git push ─► workflow "Publish participants" ─► altinncr.azurecr.io/dis-training/<name>:main
+git push ─► workflow "Publish participants" ─► altinncr.azurecr.io/dis-padawan/<name>:main
                                                         │
                Flux (OCIRepository + Kustomization <name>) ◄┘  applies overlays/aks every 2 min
 ```
@@ -25,7 +25,7 @@ Switch to AKS and make the training namespace your default:
 
 ```sh
 kubectl config use-context dis-core-at22-aks
-kubectl config set-context --current --namespace product-dis-training
+kubectl config set-context --current --namespace product-dis-padawan
 kubectl config current-context
 ```
 
@@ -88,7 +88,7 @@ kubectl describe vault "$NAME-podinfo"               # conditions; status.azureN
 Read `overlays/aks/externalsecret.yaml` and `overlays/aks/httproute.yaml`:
 
 - The ExternalSecret reads `demo-api-key` from your vault (through the SecretStore the Vault operator made) and writes a Kubernetes Secret named `demo-secret`, the same name the Deployment already uses on kind.
-- The HTTPRoute attaches to the platform's Gateway and sends `https://dis-training-<name>.at22.dis-core.altinn.cloud` to your Service.
+- The HTTPRoute attaches to the platform's Gateway and sends `https://dis-padawan-<name>.at22.dis-core.altinn.cloud` to your Service.
 
 Compare what the two overlays produce from the same base:
 
@@ -149,14 +149,14 @@ kubectl get deployments,pods -l "owner=$NAME"
 kubectl describe httproute "$NAME-podinfo"           # Status → Parents: Accepted True, ResolvedRefs True
 ```
 
-Open `https://dis-training-<name>.at22.dis-core.altinn.cloud` in a browser, then `/env`: `API_KEY` is the value you put in Key Vault.
+Open `https://dis-padawan-<name>.at22.dis-core.altinn.cloud` in a browser, then `/env`: `API_KEY` is the value you put in Key Vault.
 
 ```sh
-curl "https://dis-training-$NAME.at22.dis-core.altinn.cloud/env"         # bash
+curl "https://dis-padawan-$NAME.at22.dis-core.altinn.cloud/env"         # bash
 ```
 
 ```powershell
-curl.exe "https://dis-training-$NAME.at22.dis-core.altinn.cloud/env"     # PowerShell
+curl.exe "https://dis-padawan-$NAME.at22.dis-core.altinn.cloud/env"     # PowerShell
 ```
 
 ### 6. Change something, the GitOps way (10 min)

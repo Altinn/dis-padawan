@@ -1,6 +1,6 @@
 name: Publish syncroot
 
-# Pushes flux/syncroot as altinncr.azurecr.io/dis-training/syncroot:at22.
+# Pushes flux/syncroot as altinncr.azurecr.io/dis-padawan/syncroot:at22.
 # The platform applies ./at22 from it: one OCIRepository + Flux Kustomization per participant.
 
 on:
@@ -13,7 +13,7 @@ on:
       - .github/workflows/publish-syncroot.yml
 
 env:
-  SYNCROOT_ARTIFACT_NAME: dis-training/syncroot
+  SYNCROOT_ARTIFACT_NAME: dis-padawan/syncroot
   SYNCROOT_ENVIRONMENT: at22
 
 permissions:

@@ -64,7 +64,7 @@ Then open a new terminal. If `verify` warns that a version differs from the pinn
 Run `az login`, then the `az aks get-credentials` command from the trainer's invitation email. It creates the kube context `dis-core-at22-aks`. Then check:
 
 ```sh
-kubectl --context dis-core-at22-aks get pods -n product-dis-training
+kubectl --context dis-core-at22-aks get pods -n product-dis-padawan
 ```
 
 The command uses `--public-fqdn` because the cluster is private. Copy it as it is.

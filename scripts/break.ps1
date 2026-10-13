@@ -8,7 +8,7 @@
 #   .\scripts\break.ps1 hint <number>     # a nudge, if you're stuck
 #
 # Fix on kind: kubectl apply -k participants/<name>/overlays/kind
-# Fix on AKS:  flux resume kustomization <name> -n product-dis-training
+# Fix on AKS:  flux resume kustomization <name> -n product-dis-padawan
 #              (Flux re-applies what's in git; that's the GitOps way to undo a manual change)
 #Requires -Version 5.1
 $ErrorActionPreference = 'Stop'

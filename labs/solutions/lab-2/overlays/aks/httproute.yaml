@@ -9,7 +9,7 @@ spec:
       name: traefik-gateway
       namespace: traefik
   hostnames:
-    - dis-training-__NAME__.at22.dis-core.altinn.cloud
+    - dis-padawan-__NAME__.at22.dis-core.altinn.cloud
   rules:
     - backendRefs:
         - name: podinfo

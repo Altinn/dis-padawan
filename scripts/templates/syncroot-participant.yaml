@@ -3,12 +3,12 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
   name: __NAME__
-  namespace: product-dis-training
+  namespace: product-dis-padawan
 spec:
   # Short interval: participants should see their push deployed within a minute or two.
   interval: 1m
   provider: azure
-  url: oci://altinncr.azurecr.io/dis-training/__NAME__
+  url: oci://altinncr.azurecr.io/dis-padawan/__NAME__
   ref:
     tag: main
 ---
@@ -16,7 +16,7 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: __NAME__
-  namespace: product-dis-training
+  namespace: product-dis-padawan
 spec:
   # Short interval so drift (e.g. kubectl scale) is reverted within the lab.
   interval: 2m
@@ -31,4 +31,4 @@ spec:
   sourceRef:
     kind: OCIRepository
     name: __NAME__
-  targetNamespace: product-dis-training
+  targetNamespace: product-dis-padawan

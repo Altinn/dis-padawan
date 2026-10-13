@@ -11,7 +11,7 @@
 # 2. Azure, once Flux has pruned (dry run unless --yes):
 #      scripts/cleanup.sh --azure alice bob
 #      scripts/cleanup.sh --azure --yes alice bob
-#    Deletes the ACR repository dis-training/<name>.
+#    Deletes the ACR repository dis-padawan/<name>.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -23,7 +23,7 @@ while IFS='=' read -r key value; do
 done <"$REPO_ROOT/setup/config.env"
 
 ACR_NAME=altinncr
-ACR_REPOSITORY_PREFIX=dis-training
+ACR_REPOSITORY_PREFIX=dis-padawan
 
 AZURE=false
 EXECUTE=false

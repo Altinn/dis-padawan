@@ -1,6 +1,6 @@
 # Lab 4 — Autoscaling with HPA
 
-**Time:** 45 min · **Where:** AKS (`product-dis-training`), via git
+**Time:** 45 min · **Where:** AKS (`product-dis-padawan`), via git
 
 ## Goal
 
@@ -8,7 +8,7 @@ Make podinfo scale on CPU load, and see why the Deployment must stop setting `re
 
 ## Before you start
 
-- Lab 3 is done: your app answers on `https://dis-training-<name>.at22.dis-core.altinn.cloud`.
+- Lab 3 is done: your app answers on `https://dis-padawan-<name>.at22.dis-core.altinn.cloud`.
 - Set `NAME` in every terminal, and check `kubectl config current-context` is AKS. You'll want three terminals.
 - `hey` is installed (`hey -h`).
 
@@ -69,7 +69,7 @@ kubectl get deployment "$NAME-podinfo" -w
 Terminal 1, generate load for 5 minutes:
 
 ```sh
-hey -z 5m -c 20 "https://dis-training-$NAME.at22.dis-core.altinn.cloud/"
+hey -z 5m -c 20 "https://dis-padawan-$NAME.at22.dis-core.altinn.cloud/"
 ```
 
 Within a minute or two the HPA scales up towards 5. Keep watching the Deployment. Within 2 minutes it **drops back to 3**, then the HPA scales it up again, and so on.
@@ -98,7 +98,7 @@ patches:
 Render: the Deployment has no `replicas` line any more. On kind, `kubectl kustomize "participants/$NAME/overlays/kind"` still has it. Push, and once Flux has applied it, load again:
 
 ```sh
-hey -z 3m -c 20 "https://dis-training-$NAME.at22.dis-core.altinn.cloud/"
+hey -z 3m -c 20 "https://dis-padawan-$NAME.at22.dis-core.altinn.cloud/"
 ```
 
 Now the replica count follows the load and stays there. When `hey` stops, the HPA scales down again, but only after 5 minutes. It waits that long by default, so a short dip in load doesn't remove pods you'll need again a moment later.

@@ -1,4 +1,4 @@
-# dis-training
+# dis-padawan
 
 Hands-on Kubernetes / AKS training. In the morning you run podinfo on a local **kind** cluster with `kubectl apply -k`. In the afternoon you deploy the same app to **AKS** with `git push` → GitHub workflow → OCI artifact in ACR → **Flux**.
 
@@ -15,7 +15,7 @@ Hands-on Kubernetes / AKS training. In the morning you run podinfo on a local **
 participants/
   _template/         source for participant folders (trainer)
   <name>/            your app: base/ + overlays/kind + overlays/aks
-flux/syncroot/       syncroot (artifact dis-training/syncroot:at22): OCIRepository + Flux Kustomization per participant (trainer)
+flux/syncroot/       syncroot (artifact dis-padawan/syncroot:at22): OCIRepository + Flux Kustomization per participant (trainer)
 setup/               pinned versions, kind config, install + verify scripts (macOS + Windows)
 labs/                lab guides
 scripts/             add-participant / cleanup (trainer); break.sh / break.ps1 (participants, break-fix)

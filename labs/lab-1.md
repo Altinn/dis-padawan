@@ -33,7 +33,7 @@ kind create cluster --config setup/kind-config.yaml
 It takes a minute or two. kind adds a context `kind-k8s-training` to your kubeconfig and switches to it. Make the training namespace your default, so you don't need `-n` on every command:
 
 ```sh
-kubectl config set-context --current --namespace product-dis-training
+kubectl config set-context --current --namespace product-dis-padawan
 ```
 
 Check that the cluster works:
@@ -66,7 +66,7 @@ kubectl kustomize "participants/$NAME/overlays/kind"
 
 Find these in the output:
 
-- `namespace: product-dis-training` on every object: the overlay added it.
+- `namespace: product-dis-padawan` on every object: the overlay added it.
 - A `Secret` named `demo-secret-<hash>`, and the Deployment's `secretRef` pointing at that exact name. The overlay's `secretGenerator` created it, and Kustomize rewrote the reference.
 - `app.kubernetes.io/name: podinfo` in the Service selector **and** the pod labels: the base's `labels` added both.
 

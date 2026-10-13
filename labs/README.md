@@ -9,4 +9,4 @@
 
 Every lab has a goal, steps (bash **and** PowerShell), and a stretch task. Stuck for more than 5 minutes? Compare your folder with [`labs/solutions/lab-<n>/`](solutions/).
 
-Optional (15:15–15:45, if time allows): break-fix on AKS with `scripts/break.sh aks <name>`. It suspends your Flux Kustomization first (otherwise Flux undoes the break within 2 minutes) and adds AKS-only scenarios: ExternalSecret failing, HTTPRoute not attached. Fix with `flux resume kustomization <name> -n product-dis-training`.
+Optional (15:15–15:45, if time allows): break-fix on AKS with `scripts/break.sh aks <name>`. It suspends your Flux Kustomization first (otherwise Flux undoes the break within 2 minutes) and adds AKS-only scenarios: ExternalSecret failing, HTTPRoute not attached. Fix with `flux resume kustomization <name> -n product-dis-padawan`.

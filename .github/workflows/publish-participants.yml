@@ -1,6 +1,6 @@
 name: Publish participants
 
-# Pushes each changed participants/<name>/ as altinncr.azurecr.io/dis-training/<name>:main.
+# Pushes each changed participants/<name>/ as altinncr.azurecr.io/dis-padawan/<name>:main.
 # The participant's Flux Kustomization (from the syncroot) applies ./overlays/aks from it.
 
 on:
@@ -14,7 +14,7 @@ on:
       - '!participants/README.md'
 
 env:
-  ARTIFACT_PREFIX: dis-training
+  ARTIFACT_PREFIX: dis-padawan
   ARTIFACT_TAG: main
 
 permissions:
@@ -116,7 +116,7 @@ jobs:
             echo
             echo "Flux picks it up within about a minute. Follow it with:"
             echo '```sh'
-            echo "flux get kustomizations -n product-dis-training ${NAME}"
-            echo "kubectl get kustomization -n product-dis-training ${NAME} -w"
+            echo "flux get kustomizations -n product-dis-padawan ${NAME}"
+            echo "kubectl get kustomization -n product-dis-padawan ${NAME} -w"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"

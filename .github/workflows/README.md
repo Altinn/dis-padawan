@@ -4,10 +4,10 @@ Same pattern as `Altinn/dialogporten-manifests` (`publish-flux-artifacts.yml`): 
 
 | Workflow | Trigger | Pushes | Tag | Applied by |
 |---|---|---|---|---|
-| [`publish-syncroot.yml`](publish-syncroot.yml) | push to `main` touching `flux/syncroot/**`, or manual | `./flux/syncroot` → `altinncr.azurecr.io/dis-training/syncroot` | `at22` | Platform syncroot → path `./at22` |
-| [`publish-participants.yml`](publish-participants.yml) | push to `main` touching `participants/**` (not `_template/`), or manual (publishes everyone) | `./participants/<name>` → `altinncr.azurecr.io/dis-training/<name>` | `main` | OCIRepository + Flux Kustomization `<name>` from the syncroot → path `./overlays/aks` |
+| [`publish-syncroot.yml`](publish-syncroot.yml) | push to `main` touching `flux/syncroot/**`, or manual | `./flux/syncroot` → `altinncr.azurecr.io/dis-padawan/syncroot` | `at22` | Platform syncroot → path `./at22` |
+| [`publish-participants.yml`](publish-participants.yml) | push to `main` touching `participants/**` (not `_template/`), or manual (publishes everyone) | `./participants/<name>` → `altinncr.azurecr.io/dis-padawan/<name>` | `main` | OCIRepository + Flux Kustomization `<name>` from the syncroot → path `./overlays/aks` |
 
-Flux chain: platform → `dis-training/syncroot:at22` → `flux/syncroot/base/<name>.yaml` → `dis-training/<name>:main` → `participants/<name>/overlays/aks`.
+Flux chain: platform → `dis-padawan/syncroot:at22` → `flux/syncroot/base/<name>.yaml` → `dis-padawan/<name>:main` → `participants/<name>/overlays/aks`.
 
 ## Behaviour
 
@@ -18,7 +18,7 @@ Flux chain: platform → `dis-training/syncroot:at22` → `flux/syncroot/base/<n
 
 ## Needs from the trainer
 
-- Repository secrets `DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID`, `DIS_SYNCROOT_AZURE_CLIENT_ID`, `DIS_SYNCROOT_AZURE_TENANT_ID`. The app needs push access to `altinncr.azurecr.io/dis-training/*` and a federated credential for this repo's `main` branch.
+- Repository secrets `DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID`, `DIS_SYNCROOT_AZURE_CLIENT_ID`, `DIS_SYNCROOT_AZURE_TENANT_ID`. The app needs push access to `altinncr.azurecr.io/dis-padawan/*` and a federated credential for this repo's `main` branch.
 - Self-hosted runners available to this repository.
 
 ## Not enforced

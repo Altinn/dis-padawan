@@ -31,15 +31,15 @@ This repo contains everything for a 1-day (+ optional ½ day) hands-on Kubernete
 | ESO | 2.11.0 → `external-secrets.io/v1` |
 | ACR | `altinncr.azurecr.io` |
 | Environment | `at22` |
-| Namespace | `product-dis-training` (platform convention `product-<team>`) |
+| Namespace | `product-dis-padawan` (platform convention `product-<team>`) |
 | Deploy path | `git push` → pre-made GitHub workflow → OCI artifact in ACR → Flux |
-| Syncroot | `flux/syncroot/` (base + `at22` overlay) pushed to `altinncr.azurecr.io/dis-training/syncroot:at22`; the platform applies `./at22`. Pattern: `Altinn/dialogporten-manifests` `flux/syncroot` |
-| Participant artifacts | `participants/<name>/` → `altinncr.azurecr.io/dis-training/<name>:main`; syncroot holds OCIRepository + Flux Kustomization `<name>` (`path: ./overlays/aks`, `prune: true`) per participant |
+| Syncroot | `flux/syncroot/` (base + `at22` overlay) pushed to `altinncr.azurecr.io/dis-padawan/syncroot:at22`; the platform applies `./at22`. Pattern: `Altinn/dialogporten-manifests` `flux/syncroot` |
+| Participant artifacts | `participants/<name>/` → `altinncr.azurecr.io/dis-padawan/<name>:main`; syncroot holds OCIRepository + Flux Kustomization `<name>` (`path: ./overlays/aks`, `prune: true`) per participant |
 | Namespace, RBAC, syncroot Flux objects | **Existing platform setup**; the platform's syncroot Kustomization impersonates a namespaced SA. Reuse, don't reinvent |
 | Key Vault | Per participant, `Vault` CR (dis-vault-operator); operator also creates the SecretStore |
 | Identity | Per participant, `ApplicationIdentity` CR (dis-identity-operator): UAMI, federated credential, ServiceAccount |
 | ResourceQuota / LimitRange | Owner adds them to the platform's namespace setup; not in this repo |
-| Hostnames / TLS | Handled by platform; wildcard `*.at22.dis-core.altinn.cloud` → per person `dis-training-<name>.at22.dis-core.altinn.cloud` |
+| Hostnames / TLS | Handled by platform; wildcard `*.at22.dis-core.altinn.cloud` → per person `dis-padawan-<name>.at22.dis-core.altinn.cloud` |
 | Gateway parentRef | Gateway `traefik-gateway` in namespace `traefik` (no `sectionName`) |
 
 ## Core design decisions (agreed, don't relitigate without reason)
@@ -50,12 +50,12 @@ This repo contains everything for a 1-day (+ optional ½ day) hands-on Kubernete
 4. **HPA moves to AKS** (metrics-server is built in).
 5. **Basic debugging stays in the morning** (logs, describe, events, exec; ImagePullBackOff, CrashLoopBackOff, failing probes, OOMKilled).
 6. **One full app copy per participant**: `participants/<name>/`. Avoids a shared base that one person can break for everyone; workflow builds only the changed participant folder (paths filter).
-7. **One shared namespace `product-dis-training` on AKS**, isolated per person by:
+7. **One shared namespace `product-dis-padawan` on AKS**, isolated per person by:
    - `namePrefix: <name>-`
    - `labels` with `includeSelectors: true` (prevents Service selectors silently routing to other people's pods)
    - one OCIRepository + Flux Kustomization per person, defined in the syncroot (`flux/syncroot/base/<name>.yaml`), `prune: true`
    - ResourceQuota + LimitRange from the platform namespace setup
-   - per-person hostname `dis-training-<name>.at22.dis-core.altinn.cloud`
+   - per-person hostname `dis-padawan-<name>.at22.dis-core.altinn.cloud`
 8. **Participants deploy their own ApplicationIdentity + Vault** and create secret `demo-api-key` in their own vault. No shared vault, no trainer-owned SecretStore.
 9. **Cleanup** = remove the person from the syncroot (and their folder), push; Flux prunes their OCIRepository + Kustomization and everything it applied. Prune also removes their Vault + ApplicationIdentity (operators delete the Azure resources). Then delete their ACR repository (`scripts/cleanup.sh`, two phases).
 10. **Demo app: podinfo** (confirmed).
@@ -128,7 +128,7 @@ Source of truth is `participants/_template/overlays/aks/` (token `__NAME__`). It
 **Each participant deploys their own identity and Key Vault** (nothing shared, no trainer-owned platform objects in this repo). Operators live in `Altinn/altinn-platform/services/`:
 - `ApplicationIdentity` (`application.dis.altinn.cloud/v1alpha1`, dis-identity-operator): creates UAMI + federated credential + a ServiceAccount **named like the CR**, annotated with `azure.workload.identity/client-id`.
 - `Vault` (`vault.dis.altinn.cloud/v1alpha1`, dis-vault-operator): `identityRef` → the ApplicationIdentity; `groupObjectId: <training-group-object-id>` gives participants secret access; `externalSecrets: true` makes the operator create SecretStore `<vault-name>-secret-store`. Azure name is computed (`status.azureName`, deterministic per namespace/name/env) → `purgeProtectionEnabled: false`, `softDeleteRetentionDays: 7` so a vault can be recreated.
-- Participant creates the secret in their own vault: `az keyvault secret set --vault-name $(kubectl get vault <name>-podinfo -n product-dis-training -o jsonpath='{.status.azureName}') --name demo-api-key --value "<anything>"`.
+- Participant creates the secret in their own vault: `az keyvault secret set --vault-name $(kubectl get vault <name>-podinfo -n product-dis-padawan -o jsonpath='{.status.azureName}') --name demo-api-key --value "<anything>"`.
 - ExternalSecret `secretStoreRef.name` is written out as `__NAME__-podinfo-secret-store` (Kustomize can't derive the operator's suffix).
 
 `kustomizeconfig.yaml` teaches Kustomize three references so `namePrefix` stays consistent: ExternalSecret → Deployment `envFrom.secretRef`, Service → HTTPRoute `backendRefs`, ApplicationIdentity → Vault `spec.identityRef.name`.
@@ -138,7 +138,7 @@ Source of truth is `participants/_template/overlays/aks/` (token `__NAME__`). It
 - `alice-podinfo` in Service, HTTPRoute `backendRefs`, ApplicationIdentity, Vault and Vault `identityRef`
 - ExternalSecret `secretStoreRef` = `alice-podinfo-secret-store`; Gateway `parentRefs` unprefixed
 
-Gateway: `traefik-gateway` (namespace `traefik`), no `sectionName`; confirm its `allowedRoutes` admits namespace `product-dis-training`.
+Gateway: `traefik-gateway` (namespace `traefik`), no `sectionName`; confirm its `allowedRoutes` admits namespace `product-dis-padawan`.
 
 ## Known gotchas to handle
 
@@ -171,6 +171,6 @@ git + GitHub access to this repo, kubectl, kind, Podman (machine with ≥ 4 GB),
 ## Open questions
 
 - Entra training group not created yet → `<training-group-object-id>` in `vault.yaml` (template + solutions)
-- Confirm `traefik-gateway` admits HTTPRoutes from `product-dis-training` and serves `*.at22.dis-core.altinn.cloud`
+- Confirm `traefik-gateway` admits HTTPRoutes from `product-dis-padawan` and serves `*.at22.dis-core.altinn.cloud`
 - OTel: collector endpoint, how it scrapes Prometheus metrics, trace backend in Grafana
 - Repo moves to the Altinn org later; then the `DIS_SYNCROOT_AZURE_*` secrets and self-hosted runners apply as in dialogporten-manifests. Fill `<trainer-github-handle>` in CODEOWNERS
