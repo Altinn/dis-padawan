@@ -33,7 +33,7 @@ function Show-Hint($n) {
         2 { "The container starts and stops. What did it say before it died? kubectl logs --previous" }
         3 { "Pods are Running but not Ready. Which check decides Ready, and what does it call?" }
         4 { "Check 'Last State' and 'Reason' in kubectl describe pod. Compare with the container's limits." }
-        5 { "The pods look fine. Does the Service find them? kubectl get endpointslices; compare labels." }
+        5 { "The pods look fine. Does the Service find them? kubectl describe service podinfo (Selector, Endpoints), and compare with kubectl get pods --show-labels." }
         6 { "Pods can't start their container. Follow the chain: ExternalSecret status -> Secret -> pod events." }
         7 { "Pods and Service are fine. Is the route attached to the gateway? kubectl describe httproute" }
         default { Write-Error "No such scenario" }

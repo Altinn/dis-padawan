@@ -31,7 +31,7 @@ hint() {
     2) echo "The container starts and stops. What did it say before it died? kubectl logs --previous" ;;
     3) echo "Pods are Running but not Ready. Which check decides Ready, and what does it call?" ;;
     4) echo "Check 'Last State' and 'Reason' in kubectl describe pod. Compare with the container's limits." ;;
-    5) echo "The pods look fine. Does the Service find them? kubectl get endpointslices; compare labels." ;;
+    5) echo "The pods look fine. Does the Service find them? kubectl describe service podinfo (Selector, Endpoints), and compare with kubectl get pods --show-labels." ;;
     6) echo "Pods can't start their container. Follow the chain: ExternalSecret status -> Secret -> pod events." ;;
     7) echo "Pods and Service are fine. Is the route attached to the gateway? kubectl describe httproute" ;;
     *) echo "No such scenario" >&2; exit 1 ;;

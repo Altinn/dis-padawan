@@ -102,6 +102,10 @@ kubectl get pods -w                   # RESTARTS goes up, then CrashLoopBackOff
 kubectl describe pod <pod-name>       # Events: "Liveness probe failed", "will be restarted"
 ```
 
+Be patient: the new pods first look perfectly fine (`1/1 Running`, 0 restarts). Readiness still passes, so the rollout even completes. The first restart comes after about 35 seconds: the 5-second `initialDelaySeconds`, then 3 failed checks 10 seconds apart (`failureThreshold` defaults to 3). After that the pod cycles: start, look healthy, get killed. kubectl shows `CrashLoopBackOff`, and the wait between restarts doubles each time (up to 5 minutes).
+
+That's why liveness checks are dangerous when they're wrong: an app that works fine (readiness passes, it serves traffic) gets killed over and over.
+
 Remove `--unhealthy` again and apply.
 
 **Checkpoint:** you can explain why a failing readiness probe is harmless to the pod, and a failing liveness probe isn't.
@@ -127,7 +131,9 @@ Find out what's wrong, using only these:
 | `kubectl get events --sort-by=.lastTimestamp` | everything that happened recently |
 | `kubectl logs <pod>` / `kubectl logs <pod> --previous` | output of the current / the crashed container |
 | `kubectl rollout status deployment podinfo` | whether a rollout is stuck |
-| `kubectl describe endpointslices -l kubernetes.io/service-name=podinfo` | which pods the Service sends traffic to |
+| `kubectl get service` / `kubectl describe service podinfo` | the Service's `Selector`, and its `Endpoints`: the pods it actually found |
+| `kubectl get pods --show-labels` | the pods' labels, to compare with the Service's selector |
+| `kubectl describe endpointslices -l kubernetes.io/service-name=podinfo` | which pods the Service sends traffic to, and whether they're ready |
 | `kubectl exec -it <pod> -- sh` | a shell inside the container |
 
 When you know the cause, say it out loud to your neighbour, then fix it by applying your folder again:
