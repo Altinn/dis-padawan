@@ -8,10 +8,10 @@ Pinned versions and training settings live in [`config.env`](config.env). Both t
 
 We use Podman as the container runtime. Install Podman (https://podman.io/docs/installation) or Podman Desktop (https://podman-desktop.io). On Windows, enable WSL2 first (`wsl --install`, then reboot).
 
-kind needs a **rootful** Podman machine with at least 4 GB RAM. On Windows the machine runs in WSL2, which ignores `--memory`. There, set `memory=4GB` under `[wsl2]` in `%USERPROFILE%\.wslconfig` and run `wsl --shutdown`.
+kind needs a Podman machine with at least 4 GB RAM. On Windows the machine runs in WSL2, which ignores `--memory`. There, set `memory=4GB` under `[wsl2]` in `%USERPROFILE%\.wslconfig` and run `wsl --shutdown`.
 
 ```sh
-podman machine init --rootful --memory 4096 --cpus 2   # or, for an existing machine: podman machine stop; podman machine set --rootful
+podman machine init --memory 4096 --cpus 2
 podman machine start
 ```
 
@@ -81,7 +81,7 @@ The command uses `--public-fqdn` because the cluster is private. Copy it as it i
 .\setup\verify.ps1                # Windows
 ```
 
-The verify script only checks that everything is ready; it doesn't create anything. You create the kind cluster yourself in Lab 1. It checks your tools, that Podman is running and rootful with at least 4 GB memory, and that `KIND_EXPERIMENTAL_PROVIDER=podman` is set. It pre-pulls the kind node image and the podinfo image, so Lab 1 starts fast and you know image pulls work. It also checks that the AKS API is reachable and that you have kubectl access to the training namespace. Use `--skip-aks` / `-SkipAks` to run only the local checks.
+The verify script only checks that everything is ready; it doesn't create anything. You create the kind cluster yourself in Lab 1. It checks your tools, that Podman is running with at least 4 GB memory, and that `KIND_EXPERIMENTAL_PROVIDER=podman` is set. It pre-pulls the kind node image and the podinfo image, so Lab 1 starts fast and you know image pulls work. It also checks that the AKS API is reachable and that you have kubectl access to the training namespace. Use `--skip-aks` / `-SkipAks` to run only the local checks.
 
 **If any check fails, send the full output to the trainer before the training day.**
 

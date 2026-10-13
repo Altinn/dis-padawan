@@ -50,8 +50,6 @@ elif ! podman info >/dev/null 2>&1; then
   fail "podman is not running: podman machine start"
 else
   ok "podman is running"
-  [[ "$(podman info --format '{{.Host.Security.Rootless}}' 2>/dev/null)" == "false" ]] ||
-    fail "podman machine is rootless; kind needs rootful: podman machine stop; podman machine set --rootful; podman machine start"
   # MemTotal is what the machine's kernel sees, a bit below the configured size,
   # so a 4096 MiB machine reports roughly 3.8 GiB. 3500 MiB leaves room for that.
   MEM_MIB=$(( $(podman info --format '{{.Host.MemTotal}}' 2>/dev/null || echo 0) / 1024 / 1024 ))

@@ -45,9 +45,6 @@ if (-not (Has podman)) {
         Fail "podman is not running: podman machine start (WSL2 must be enabled)"
     } else {
         Ok "podman is running"
-        if ((podman info --format '{{.Host.Security.Rootless}}' 2>$null) -ne 'false') {
-            Fail "podman machine is rootless; kind needs rootful: podman machine stop; podman machine set --rootful; podman machine start"
-        }
         # MemTotal is what the machine's kernel sees, a bit below the configured size,
         # so a 4096 MiB machine reports roughly 3.8 GiB. 3500 MiB leaves room for that.
         $memMiB = [math]::Floor([double](podman info --format '{{.Host.MemTotal}}' 2>$null) / 1MB)

@@ -94,7 +94,7 @@ try {
     # Podman: check only
     if (-not (Get-Command podman -ErrorAction SilentlyContinue)) {
         Warn "podman not found. Enable WSL2 (wsl --install), install Podman or Podman Desktop,"
-        Warn "and create a rootful machine (see setup\README.md)."
+        Warn "and create a machine with at least 4 GB memory (see setup\README.md)."
     }
 
     # PATH (user scope)

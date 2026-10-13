@@ -104,7 +104,7 @@ if ! command -v hey >/dev/null 2>&1; then
 fi
 
 if ! command -v podman >/dev/null 2>&1; then
-  warn "podman not found. Install Podman or Podman Desktop and create a rootful machine (see setup/README.md)."
+  warn "podman not found. Install Podman or Podman Desktop and create a machine with at least 4 GB memory (see setup/README.md)."
 fi
 
 case ":$PATH:" in
