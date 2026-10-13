@@ -42,8 +42,11 @@ Check that the cluster works:
 kubectl config current-context        # kind-k8s-training
 kubectl get nodes                     # one node, STATUS Ready
 kubectl get pods -A                   # the system pods that run Kubernetes itself
+kubectl get pods                      # "No resources found in product-dis-padawan namespace."
 podman ps                             # the "node" is just a container
 ```
+
+`-A` (`--all-namespaces`) lists pods in every namespace: the system pods live in `kube-system` and `local-path-storage`. Without it, kubectl only looks in your default namespace, `product-dis-padawan`, and that's still empty. It doesn't even exist yet: your first `apply` in the next step creates it.
 
 If `kind create cluster` fails, check that `KIND_EXPERIMENTAL_PROVIDER` is `podman`, then see the troubleshooting table in [setup/README.md](../setup/README.md#troubleshooting).
 
@@ -98,11 +101,28 @@ kubectl get replicaset <replicaset-name> -o jsonpath='{.metadata.ownerReferences
 
 ### 4. Reach it (10 min)
 
-The Service gives the pods one stable name inside the cluster. From your laptop you reach it with a port-forward (second terminal; it blocks):
+The Service gives the pods one stable name and IP inside the cluster. Look at it first:
+
+```sh
+kubectl get service podinfo           # TYPE ClusterIP, PORT(S) 9898/TCP
+kubectl describe service podinfo      # Selector, Port, TargetPort, Endpoints
+```
+
+Where does 9898 come from? Follow it through the files:
+
+| Where | Setting | Meaning |
+|---|---|---|
+| `base/deployment.yaml` | `args: --port=9898` and `containerPort: 9898` named `http` | podinfo listens on 9898 (its default) |
+| `base/service.yaml` | `port: 9898`, `targetPort: http` | the Service listens on 9898 and forwards to the container port named `http` |
+| `describe service` | `Endpoints: 10.244.x.x:9898, …` | the pod IPs the Selector matched, on that port |
+
+A `ClusterIP` Service is only reachable inside the cluster. From your laptop you go through a port-forward (second terminal; it blocks):
 
 ```sh
 kubectl port-forward svc/podinfo 9898:9898
 ```
+
+The format is `<port on your laptop>:<port on the Service>`. Using 9898 on both sides is just convenient. `8080:9898` works as well, and then you open http://localhost:8080 instead.
 
 Open http://localhost:9898 in a browser. Then try:
 
