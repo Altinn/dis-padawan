@@ -76,10 +76,16 @@ try {
         Copy-Item "$tmp\flux\flux.exe" "$binDir\flux.exe" -Force
     }
 
-    # hey (optional load generator for Lab 4)
+    # hey (optional load generator for Lab 4): unversioned download, pinned by SHA-256 in config.env
     if (-not (Get-Command hey -ErrorAction SilentlyContinue)) {
-        Info "hey"
-        Get-File "https://hey-release.s3.us-east-2.amazonaws.com/hey_windows_amd64" "$binDir\hey.exe"
+        if ($config.HEY_WINDOWS_SHA256 -notmatch '^[0-9a-f]{64}$') {
+            Warn "hey: no pinned checksum in config.env, skipping (optional, Lab 4)"
+        } else {
+            Info "hey"
+            Get-File $config.HEY_WINDOWS_URL "$tmp\hey.exe"
+            Assert-Sha256 "$tmp\hey.exe" $config.HEY_WINDOWS_SHA256
+            Copy-Item "$tmp\hey.exe" "$binDir\hey.exe" -Force
+        }
     }
 
     # az CLI
