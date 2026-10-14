@@ -2,8 +2,6 @@
 
 Same pattern as `Altinn/dialogporten-manifests` (`publish-flux-artifacts.yml`): artifacts are pushed with `Altinn/altinn-platform/actions/flux/build-push-image`, tagged with the short commit SHA plus a moving tag.
 
-> **Push triggers are currently commented out** until the repo has moved to the Altinn org and secrets, runners and ACR access are in place. Only manual runs (*Run workflow*) work. Uncomment the `push:` blocks before the training: the labs rely on them.
-
 | Workflow | Trigger | Pushes | Tag | Applied by |
 |---|---|---|---|---|
 | [`publish-syncroot.yml`](publish-syncroot.yml) | push to `main` touching `flux/syncroot/**`, or manual | `./flux/syncroot` → `altinncr.azurecr.io/dis-padawan/syncroot` | `at22` | Platform syncroot → path `./at22` |

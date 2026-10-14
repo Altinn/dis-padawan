@@ -5,15 +5,13 @@ name: Publish participants
 
 on:
   workflow_dispatch:
-  # Push trigger disabled until the repo has moved to the Altinn org (secrets, runners,
-  # ACR access). Uncomment to enable; manual runs work meanwhile.
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - participants/**
-  #     - '!participants/_template/**'
-  #     - '!participants/README.md'
+  push:
+    branches:
+      - main
+    paths:
+      - participants/**
+      - '!participants/_template/**'
+      - '!participants/README.md'
 
 env:
   ARTIFACT_PREFIX: dis-padawan
