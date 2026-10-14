@@ -5,6 +5,10 @@ labels:
       app.kubernetes.io/name: podinfo
     includeSelectors: true
 resources:
-  - configmap.yaml
   - deployment.yaml
   - service.yaml
+configMapGenerator:
+  - name: podinfo-config
+    literals:
+      - PODINFO_UI_MESSAGE=Hello from Mats
+      - PODINFO_UI_COLOR=#c0392b
