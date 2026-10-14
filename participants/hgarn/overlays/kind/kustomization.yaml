@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Local kind cluster: same namespace as AKS, no name prefix (the cluster is yours alone).
+namespace: product-dis-padawan
+resources:
+  - namespace.yaml
+  - ../../base
+secretGenerator:
+  - name: demo-secret
+    literals:
+      - API_KEY=local-dev-key

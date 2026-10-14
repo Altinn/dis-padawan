@@ -1,0 +1,27 @@
+# Kustomize only rewrites name references between kinds it knows about.
+# Teach it that Deployments reference the ExternalSecret's target Secret by the
+# ExternalSecret's name, that HTTPRoute backendRefs point at Services, and that a
+# Vault's identityRef points at an ApplicationIdentity, so namePrefix is applied
+# consistently on both sides.
+nameReference:
+  - kind: ExternalSecret
+    group: external-secrets.io
+    fieldSpecs:
+      - kind: Deployment
+        path: spec/template/spec/containers/envFrom/secretRef/name
+      - kind: Deployment
+        path: spec/template/spec/containers/env/valueFrom/secretKeyRef/name
+      - kind: Deployment
+        path: spec/template/spec/volumes/secret/secretName
+  - kind: Service
+    version: v1
+    fieldSpecs:
+      - kind: HTTPRoute
+        group: gateway.networking.k8s.io
+        path: spec/rules/backendRefs/name
+  - kind: ApplicationIdentity
+    group: application.dis.altinn.cloud
+    fieldSpecs:
+      - kind: Vault
+        group: vault.dis.altinn.cloud
+        path: spec/identityRef/name

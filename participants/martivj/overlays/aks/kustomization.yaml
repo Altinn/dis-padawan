@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Shared AKS namespace: every object gets your name as prefix and owner label,
+# so nothing collides with (or selects) other participants' resources.
+namespace: product-dis-padawan
+namePrefix: martivj-
+labels:
+  - pairs:
+      owner: martivj
+    includeSelectors: true
+# Lab 3 enables these in two rounds: uncomment, render, commit, push.
+resources:
+  # Round 1: your identity and Key Vault. Azure needs a moment to create them, so push this first.
+  # - applicationidentity.yaml
+  # - vault.yaml
+  # Round 2: podinfo, its secret from your Key Vault, and the route to it.
+  # - ../../base
+  # - externalsecret.yaml
+  # - httproute.yaml
+configurations:
+  - kustomizeconfig.yaml
+images:
+  # AKS pulls through ACR's pull-through cache for ghcr.io, not from ghcr.io directly.
+  - name: ghcr.io/stefanprodan/podinfo
+    newName: altinncr.azurecr.io/ghcr.io/stefanprodan/podinfo
+    newTag: 6.15.0
