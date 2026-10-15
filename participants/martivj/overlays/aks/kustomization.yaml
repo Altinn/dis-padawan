@@ -24,3 +24,8 @@ images:
   - name: ghcr.io/stefanprodan/podinfo
     newName: altinncr.azurecr.io/ghcr.io/stefanprodan/podinfo
     newTag: 6.15.0
+configMapGenerator:
+  - name: podinfo-config
+    behavior: merge
+    literals:
+      - PODINFO_UI_MESSAGE=Hello from AKS :)
