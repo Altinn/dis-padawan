@@ -14,9 +14,9 @@ resources:
   - applicationidentity.yaml
   - vault.yaml
   # Round 2: podinfo, its secret from your Key Vault, and the route to it.
-  # - ../../base
-  # - externalsecret.yaml
-  # - httproute.yaml
+  - ../../base
+  - externalsecret.yaml
+  - httproute.yaml
 configurations:
   - kustomizeconfig.yaml
 images:
