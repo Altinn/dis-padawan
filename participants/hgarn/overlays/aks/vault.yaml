@@ -13,5 +13,5 @@ spec:
   externalSecrets: true
   # Training vaults are short-lived. The Azure name is deterministic, so purge protection
   # would block re-creating a deleted vault with the same name for the retention period.
-  purgeProtectionEnabled: false
+  purgeProtectionEnabled: true
   softDeleteRetentionDays: 7
