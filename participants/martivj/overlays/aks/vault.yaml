@@ -9,7 +9,7 @@ spec:
   identityRef:
     name: podinfo
   # Entra group for the training participants: lets you create secrets with `az keyvault secret set`.
-  groupObjectId: d9f10955-bf9a-421e-8d65-243f20bf0161
+  groupObjectId: d2b216f8-66ba-415d-88b2-fb87118f58c1
   externalSecrets: true
   # Training vaults are short-lived. The Azure name is deterministic, so purge protection
   # would block re-creating a deleted vault with the same name for the retention period.
